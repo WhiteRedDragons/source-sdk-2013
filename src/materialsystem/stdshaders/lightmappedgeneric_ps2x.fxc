@@ -1,60 +1,237 @@
-// STATIC: "MASKEDBLENDING"				"0..1"
-// STATIC: "BASETEXTURE2"				"0..1"
-// STATIC: "DETAILTEXTURE"				"0..1"
-// STATIC: "BUMPMAP"					"0..2"
-// STATIC: "BUMPMAP2"					"0..1"
-// STATIC: "CUBEMAP"					"0..1"
-// STATIC: "ENVMAPMASK"					"0..1"
-// STATIC: "BASEALPHAENVMAPMASK"		"0..1"
-// STATIC: "SELFILLUM"					"0..1"
-// STATIC: "NORMALMAPALPHAENVMAPMASK"	"0..1"
-// STATIC: "DIFFUSEBUMPMAP"				"0..1"
-// STATIC: "BASETEXTURENOENVMAP"		"0..1"
-// STATIC: "BASETEXTURE2NOENVMAP"		"0..1"
-// STATIC: "WARPLIGHTING"				"0..1"
-// STATIC: "FANCY_BLENDING"				"0..1"
-// STATIC: "RELIEF_MAPPING"				"0..0"	[ps20b]
-// STATIC: "SEAMLESS"					"0..1"
-// STATIC: "OUTLINE"                    "0..1"
-// STATIC: "SOFTEDGES"                  "0..1"
-// STATIC: "BUMPMASK"                   "0..1"
-// STATIC: "NORMAL_DECODE_MODE"			"0..0"	[XBOX]
-// STATIC: "NORMAL_DECODE_MODE"			"0..0"	[PC]
-// STATIC: "NORMALMASK_DECODE_MODE"		"0..0"	[XBOX]
-// STATIC: "NORMALMASK_DECODE_MODE"		"0..0"	[PC]
-// STATIC: "DETAIL_BLEND_MODE"			"0..11"
-// STATIC: "FLASHLIGHT"					"0..1"	[ps20b] [XBOX]
+// STATIC: "DISTANCEALPHAMODE"			"0..3"	// 3
+// STATIC: "SELFILLUM"					"0..1"	// 1
+// STATIC: "ENVMAPMODE"					"0..4"	// 4 - 8 with pcc
+// STATIC: "WARPLIGHTING"				"0..1"	// 1
+// STATIC: "BUMPMODE"					"0..8"	// 8
+// STATIC: "DETAIL_BLEND_MODE"			"0..12"	// 12
+// STATIC: "SEAMLESS_BUMPMASK"			"0..2"	// 2
+// STATIC: "BASETEXTURE2_MODE"			"0..3"	// 3
+// STATIC: "MASKEDBLENDING"				"0..1"	// 1
+// STATIC: "FANCY_BLENDING"				"0..1"	// 1
+
+// Dead Feature: "FLASHLIGHT"					"0..0"	[ps20b] [XBOX]
+// Dead Feature: "RELIEF_MAPPING"				"0..0"	[ps20b]
+// Dead Feature: "NORMAL_DECODE_MODE"			"0..0"	[XBOX]
+// Dead Feature: "NORMAL_DECODE_MODE"			"0..0"	[PC]
+// Dead Feature: "NORMALMASK_DECODE_MODE"		"0..0"	[XBOX]
+// Dead Feature: "NORMALMASK_DECODE_MODE"		"0..0"	[PC]
+// Dead Feature: "LIGHTING_PREVIEW"				"0..0"	[XBOX]
+// Dead Feature: "WRITE_DEPTH_TO_DESTALPHA"		"0..0"	[ps20b] [XBOX]
 
 // DYNAMIC: "FASTPATHENVMAPCONTRAST"	"0..1"
 // DYNAMIC: "FASTPATH"					"0..1"
 // DYNAMIC: "WRITEWATERFOGTODESTALPHA"	"0..1"
 // DYNAMIC: "PIXELFOGTYPE"				"0..2"
 // DYNAMIC: "LIGHTING_PREVIEW"			"0..2"	[PC]
-// DYNAMIC: "LIGHTING_PREVIEW"			"0..0"	[XBOX]
 // DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..1"	[ps20b] [PC]
-// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..0"	[ps20b] [XBOX]
-// DYNAMIC: "BICUBIC_LIGHTMAP"           "0..1" [ps20b]
+// DYNAMIC: "BICUBIC_LIGHTMAP"			"0..1"	[ps20b]
 
-//  SKIP: $SEAMLESS && $RELIEF_MAPPING			[ps20b]
+// Skip Distance Alpha related Combos first, since theres a ton of them
+// Make this separate Statements so it can skip the skips after they are done
+// I also made it skip BumpMask, not supported with BumpMaps Anyways..
+//	SKIP: ($DISTANCEALPHAMODE != 0 && $SELFILLUM)
+//	SKIP: ($DISTANCEALPHAMODE != 0 && $WARPLIGHTING)
+//	SKIP: ($DISTANCEALPHAMODE != 0 && $BUMPMODE != 0)
+//	SKIP: ($DISTANCEALPHAMODE != 0 && $DETAIL_BLEND_MODE != 12)
+//	SKIP: ($DISTANCEALPHAMODE != 0 && $SEAMLESS_BUMPMASK != 0)
+//	SKIP: ($DISTANCEALPHAMODE != 0 && $BASETEXTURE2_MODE != 0)
+//	SKIP: ($DISTANCEALPHAMODE != 0 && $MASKEDBLENDING)
+//	SKIP: ($DISTANCEALPHAMODE != 0 && $FANCY_BLENDING)
+//	SKIP: ($DISTANCEALPHAMODE != 0 && $LIGHTING_PREVIEW)
+//	SKIP: ($DISTANCEALPHAMODE != 0 && !$FASTPATH)
 
-//	SKIP: (! $DETAILTEXTURE) && ( $DETAIL_BLEND_MODE != 0 )
+//	These are only theoratical, since Flashlight is xbox360 we don't actually need them
+//	dead skip: ($FLASHLIGHT && $SELFILLUM)
+//	dead skip: ($FLASHLIGHT && $ENVMAPMODE != 0)
+//	dead skip: ($FLASHLIGHT && $WARPLIGHTING)
+//	dead skip: ($FLASHLIGHT && $BUMPMODE > 4)
+//	dead skip: ($FLASHLIGHT && $BASETEXTURE2_MODE > 1)
 
-//  SKIP: $SEAMLESS && ( $OUTLINE || $SOFTEDGES)
-//  SKIP: $BASETEXTURE2 && ( $OUTLINE || $SOFTEDGES)
-//  SKIP: $BUMPMAP2 && ( $OUTLINE || $SOFTEDGES)
-//  SKIP: $SELFILLUM && ( $OUTLINE || $SOFTEDGES)
-//  SKIP: $MASKEDBLENDING && ( $OUTLINE || $SOFTEDGES)
-//  SKIP: $FANCY_BLENDING && ( $OUTLINE || $SOFTEDGES)
-//  SKIP: $LIGHTING_PREVIEW && ( $OUTLINE || $SOFTEDGES)
-//  SKIP: ($FASTPATH == 0) && ( $OUTLINE || $SOFTEDGES)
-//  SKIP: ($DETAILTEXTURE && $BUMPMAP) && ( $OUTLINE || $SOFTEDGES)
-//  SKIP: ($WARPLIGHTING) && ( $OUTLINE || $SOFTEDGES)
-//  SKIP: ($BUMPMAP) && ( $OUTLINE || $SOFTEDGES)
-//  SKIP: ($DETAIL_BLEND_MODE == 2 ) || ($DETAIL_BLEND_MODE == 3 ) || ($DETAIL_BLEND_MODE == 4 )
-//  SKIP: ($DETAIL_BLEND_MODE == 5 ) || ($DETAIL_BLEND_MODE == 6 ) || ($DETAIL_BLEND_MODE == 7 )
-//  SKIP: ($DETAIL_BLEND_MODE == 8 ) || ($DETAIL_BLEND_MODE == 9 )
-//  SKIP ($DETAIL_BLEND_MODE == 10 ) && ($BUMPMAP == 0 )
-//  SKIP ($DETAIL_BLEND_MODE == 11 ) && ($BUMPMAP != 0 )
+//	Selfillum orders first, so skip $basealphaenvmapmask combos and BumpMask
+//	SKIP: ($SELFILLUM && ($ENVMAPMODE == 2 || $ENVMAPMODE == 6))
+//	SKIP: ($SELFILLUM && $SEAMLESS_BUMPMASK == 2)
+
+//	No Cubemaps, no Cubemap Masking. No NormalMap, no Normal Map Alpha
+//	SKIP: ($ENVMAPMODE == 0 && $BASETEXTURE2_MODE > 1)
+//	SKIP: (($ENVMAPMODE == 3 || $ENVMAPMODE == 7) && $BUMPMODE == 0)
+
+//	Lightwarp has a ton of removed combos so lets do those next since its already coming first
+//  SKIP: ($WARPLIGHTING && ($BUMPMODE == 3 || $BUMPMODE == 4 || $BUMPMODE == 7 || $BUMPMODE == 8))
+//  SKIP: ($WARPLIGHTING && $DETAIL_BLEND_MODE != 12)
+//  SKIP: ($WARPLIGHTING && $SEAMLESS_BUMPMASK == 2)
+
+//	BumpMask requires a $BumpMap2
+//	And $NoDiffuseBumpLighting means its impossible to modulate any dp for $DetailBlendMode 10
+//	Blendmode 11 should be skipped without $BumpMap, 10 is what you should be using with one.
+//	SKIP: (($BUMPMODE == 3 || $BUMPMODE == 4 || $BUMPMODE == 7 || $BUMPMODE == 8) && $SEAMLESS_BUMPMASK == 2)
+//	SKIP: ($BUMPMODE == 0 && $DETAIL_BLEND_MODE == 11)
+
+//	Shader doesn't have the Code for Blendmode 5 and 6, but that COULD be implemented now!!
+//	Also this doesn't work with Seamless and BumpMask
+//	Skipping originally skipped blendmodes to speed up the compile
+//	SKIP: ($DETAIL_BLEND_MODE == 2)
+//	SKIP: ($DETAIL_BLEND_MODE == 3)
+//	SKIP: ($DETAIL_BLEND_MODE == 4)
+//	SKIP: ($DETAIL_BLEND_MODE == 5)
+//	SKIP: ($DETAIL_BLEND_MODE == 6)
+//	SKIP: ($DETAIL_BLEND_MODE == 7)
+//	SKIP: ($DETAIL_BLEND_MODE == 8)
+//	SKIP: ($DETAIL_BLEND_MODE == 9)
+//	SKIP: ($DETAIL_BLEND_MODE == 5 || $DETAIL_BLEND_MODE == 6)
+//	SKIP: ($DETAIL_BLEND_MODE != 12 && $SEAMLESS_BUMPMASK != 0)
+
+//	These aren't allowed
+//	SKIP: ($SEAMLESS_BUMPMASK == 1 && $MASKEDBLENDING)
+
+//	Replicating the Original Skips with this one
+//  SKIP: ($SEAMLESS_BUMPMASK == 2 && $BASETEXTURE2_MODE != 0)
+
+//	Dynamic Combo Skips
+//	$FASTPATHENVMAPTINT no longer exists apparently? I removed it from the Skip.
+//	SKIP: (!$FASTPATH && $FASTPATHENVMAPCONTRAST)
+
+// No longer necessary
+//	dead skip: ($BUMPMAP == 0 && $NORMAL_DECODE_MODE == 1)
+//	dead skip: ($BUMPMAP == 0 && $NORMAL_DECODE_MODE == 2)
+//	dead skip: ($BUMPMAP == 0 && $NORMALMASK_DECODE_MODE == 1)
+//	dead skip: ($BUMPMAP == 0 && $NORMALMASK_DECODE_MODE == 2)
+
+
+// ShiroDkxtro2: Now that Statics are remapped, make the Shader use the original Paths again !!
+
+// Its either one of the two, both, or none
+// Making it one Static means less checks for the skip
+#if (DISTANCEALPHAMODE != 0)
+	#if (DISTANCEALPHAMODE == 1)
+		#define OUTLINE 1
+		#define SOFTEDGES 0
+	#elif (DISTANCEALPHAMODE == 2)
+		#define OUTLINE 0
+		#define SOFTEDGES 1
+	#elif (DISTANCEALPHAMODE == 3)
+		#define OUTLINE 1
+		#define SOFTEDGES 1
+	#endif
+#else
+	#define OUTLINE 0
+	#define SOFTEDGES 0
+#endif
+
+#if (ENVMAPMODE != 0)
+	#define CUBEMAP 1
+
+	#if (ENVMAPMODE == 2 || ENVMAPMODE == 6) 
+		#define BASEALPHAENVMAPMASK 1
+		#define NORMALMAPALPHAENVMAPMASK 0
+		#define ENVMAPMASK 0
+		
+	// !BUMPMODE is skipped above
+	#elif (ENVMAPMODE == 3 || ENVMAPMODE == 7)
+		#define BASEALPHAENVMAPMASK 0
+		#define NORMALMAPALPHAENVMAPMASK 1
+		#define ENVMAPMASK 0
+	#elif (ENVMAPMODE == 4 || ENVMAPMODE == 8)
+		#define BASEALPHAENVMAPMASK 0
+		#define NORMALMAPALPHAENVMAPMASK 0
+		#define ENVMAPMASK 1
+	#else
+		#define BASEALPHAENVMAPMASK 0
+		#define NORMALMAPALPHAENVMAPMASK 0
+		#define ENVMAPMASK 0
+	#endif
+	
+	#if (ENVMAPAMODE > 4)
+		#define PARALLAXCORRECT 1
+	#else
+		#define PARALLAXCORRECT 0
+	#endif
+#else
+	#define CUBEMAP 0
+	#define BASEALPHAENVMAPMASK 0
+	#define NORMALMAPALPHAENVMAPMASK 0
+	#define ENVMAPMASK 0
+	#define PARALLAXCORRECT 0
+#endif
+
+// DetailTextures are now disabled at 12 to save one static
+// Not shifting up because the TextureCombine Code isn't remapped to use 1+, it starts at 0
+#if (DETAIL_BLEND_MODE != 12)
+	#define DETAILTEXTURE 1
+#else
+	#define DETAILTEXTURE 0
+#endif
+
+// $BumpMap, $BumpMap2, $SSBump and $NoDiffuseBumpLighting
+// Combined into one Static :)
+#if (BUMPMODE > 0)
+	// Shader still uses the definition somewhere, so set it to 0
+	#define NORMAL_DECODE_MODE 0
+	#define NORMALMASK_DECODE_MODE 0
+
+	// SSBUMP Variants  
+	#if (BUMPMODE == 2 || BUMPMODE == 4 || BUMPMODE == 6 || BUMPMODE == 8)
+		#define BUMPMAP 2
+	#else 
+		#define BUMPMAP 1
+	#endif
+
+	// $BumpMap2 Variant
+	#if (BUMPMODE == 3 || BUMPMODE == 4 || BUMPMODE == 7 || BUMPMODE == 8)
+		#define BUMPMAP2 1
+	#else
+		#define BUMPMAP2 0
+	#endif
+
+  // This means Diffuse Bumped Lighting is not desired
+  #if(BUMPMODE > 4)
+    #define DIFFUSEBUMPMAP 0
+  #else
+    #define DIFFUSEBUMPMAP 1
+  #endif
+#else
+	#define DIFFUSEBUMPMAP 0
+	#define BUMPMAP 0
+	#define BUMPMAP2 0
+#endif
+
+// Can no longer disable the EnvMap on Both..
+#if (BASETEXTURE2_MODE > 0)
+	#define BASETEXTURE2 1
+
+	#if (BASETEXTURE2_MODE == 2)
+		#define BASETEXTURENOENVMAP 1
+		#define BASETEXTURE2NOENVMAP 0
+	#elif (BASETEXTURE2_MODE == 3)
+		#define BASETEXTURENOENVMAP 0
+		#define BASETEXTURE2NOENVMAP 1
+	#else
+		#define BASETEXTURENOENVMAP 0
+		#define BASETEXTURE2NOENVMAP 0
+	#endif
+#else
+	#define BASETEXTURE2 0
+	#define BASETEXTURENOENVMAP 0
+	#define BASETEXTURE2NOENVMAP 0
+#endif
+
+// Doing it like this removes the Seamless && BumpMask Skip
+// Less Skips == Good
+#if (SEAMLESS_BUMPMASK != 0)
+	#if (SEAMLESS_BUMPMASK == 1)
+		#define SEAMLESS 1
+		#define BUMPMASK 0
+	#else // == 2
+		#define SEAMLESS 0
+		#define BUMPMASK 1
+	#endif
+#else
+	#define SEAMLESS 0
+	#define BUMPMASK 0
+#endif
+
+// In case this is used somewhere, set it to 0
+#define RELIEF_MAPPING 0
+#define FASTPATHENVMAPTINT 0
+#define FLASHLIGHT 0
 
 #include "lightmappedgeneric_ps2_3_x.h"
-

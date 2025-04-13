@@ -317,6 +317,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 			(params[info.m_nBlendModulateTexture]->IsTexture() );
 		bool hasNormalMapAlphaEnvmapMask = IS_FLAG_SET( MATERIAL_VAR_NORMALMAPALPHAENVMAPMASK );
 
+#ifndef GAME_SHADER_DLL
 		if ( hasFlashlight && !IsX360() )				
 		{
 			// !!speed!! do this in the caller so we don't build struct every time
@@ -349,6 +350,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 			pShader->DrawFlashlight_dx90( params, pShaderAPI, pShaderShadow, vars );
 			return;
 		}
+#endif
 
 		pContextData->m_bFullyOpaque = bFullyOpaque;
 		pContextData->m_bFullyOpaqueWithoutAlphaTest = bFullyOpaqueWithoutAlphaTest;
@@ -540,7 +542,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 				SET_STATIC_VERTEX_SHADER_COMBO( VERTEXALPHATEXBLENDFACTOR, hasBaseTexture2 || hasBump2 );
 				SET_STATIC_VERTEX_SHADER_COMBO( BUMPMASK, hasBumpMask );
 
-				bool bReliefMapping = false; //( bumpmap_variant == 2 ) && ( ! bSeamlessMapping );
+//				bool bReliefMapping = false; //( bumpmap_variant == 2 ) && ( ! bSeamlessMapping );
 				SET_STATIC_VERTEX_SHADER_COMBO( RELIEF_MAPPING, false );//bReliefMapping );
 				SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS, bSeamlessMapping );
 #ifdef _X360
@@ -550,31 +552,87 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 
 				if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 				{
+					// 0 = Nothing
+					// 1 = Outline
+					// 2 = Soft Edges
+					// 3 = Outline + Soft Edges
+					int nDistanceAlphaMode = bHasOutline;
+					nDistanceAlphaMode += bHasSoftEdges;
+
+					// Combinations better be skipped on Param/Shader Init !!
+					// 0 = Nothing
+					// 1 = $EnvMap (no mask)
+					// 2 = $BaseAlphaEnvMapMask
+					// 3 = $NormalMapAlphaEnvMapMask
+					// 4 = $EnvMapMask
+					// 5-8 = The above + Parallax Corrected Cubemaps
+					int nEnvMapMode = hasEnvmap;
+					nEnvMapMode += hasBaseAlphaEnvmapMask;
+					nEnvMapMode += hasNormalMapAlphaEnvmapMask * 2;
+					nEnvMapMode += hasEnvmapMask * 3;
+					/*
+					nEnvMapMode += PCC * 4;
+					*/
+
+					// 0 = Nothing
+					// 1 = $BumpMap
+					// 2 = $BumpMap + $SSBump
+					// 3 = $BumpMap + $BumpMap2
+					// 4 = $BumpMap + $BumpMap2 + $SSBump
+					// 5-8 = $BumpMap + $NoDiffuseBumpLighting
+					int nBumpMode = hasBump;
+					nBumpMode += hasSSBump;
+					nBumpMode += hasBump2 * 2;
+					nBumpMode += !hasDiffuseBumpmap * 4;
+
+					// 0-11 = BlendModes
+					// 12 = No DetailTexture
+					// Done this way so we don't have to remap the DetailBlendModes
+					int nDetailTextureMode = hasDetailTexture ? 0 : 12;
+					nDetailTextureMode += nDetailBlendMode;
+
+					// 0 = Nothing
+					// 1 = Seamless
+					// 2 = BumpMask
+					int nSeamlessBumpMaskMode = bSeamlessMapping && !hasBumpMask;
+					nSeamlessBumpMaskMode += hasBumpMask * 2;
+
+					// 0 = Just $BaseTexture
+					// 1 = $BaseTexture2
+					// 2 = $BaseTextureNoEnvMap
+					// 3 = $BaseTexture2NoEnvMap
+					int nBaseTextureMode = hasBaseTexture2;
+					bool Base1NoEnvMap = hasBaseTexture2 && params[info.m_nBaseTextureNoEnvmap]->GetIntValue();
+					bool Base2NoEnvMap = hasBaseTexture2 && params[info.m_nBaseTexture2NoEnvmap]->GetIntValue();
+					nBaseTextureMode += Base1NoEnvMap;
+					nBaseTextureMode += Base2NoEnvMap * 2;
+
+					// TODO: Ensure this on Param Init instead so we don't enable Samplers and bind them Either
+//					if (Base1NoEnvMap && Base2NoEnvMap)
+//					{
+//						nBaseTextureMode = hasBaseTexture2;
+// 						.. no cubemap
+//					}
+
 					DECLARE_STATIC_PIXEL_SHADER( lightmappedgeneric_ps20b );
-					SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURE2, hasBaseTexture2 );
-					SET_STATIC_PIXEL_SHADER_COMBO( DETAILTEXTURE, hasDetailTexture );
-					SET_STATIC_PIXEL_SHADER_COMBO( BUMPMAP,  bumpmap_variant );
-					SET_STATIC_PIXEL_SHADER_COMBO( BUMPMAP2, hasBump2 );
-					SET_STATIC_PIXEL_SHADER_COMBO( BUMPMASK, hasBumpMask );
-					SET_STATIC_PIXEL_SHADER_COMBO( DIFFUSEBUMPMAP,  hasDiffuseBumpmap );
-					SET_STATIC_PIXEL_SHADER_COMBO( CUBEMAP,  hasEnvmap );
-					SET_STATIC_PIXEL_SHADER_COMBO( ENVMAPMASK,  hasEnvmapMask );
-					SET_STATIC_PIXEL_SHADER_COMBO( BASEALPHAENVMAPMASK,  hasBaseAlphaEnvmapMask );
-					SET_STATIC_PIXEL_SHADER_COMBO( SELFILLUM,  hasSelfIllum );
-					SET_STATIC_PIXEL_SHADER_COMBO( NORMALMAPALPHAENVMAPMASK,  hasNormalMapAlphaEnvmapMask );
-					SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURENOENVMAP,  params[info.m_nBaseTextureNoEnvmap]->GetIntValue() );
-					SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURE2NOENVMAP, params[info.m_nBaseTexture2NoEnvmap]->GetIntValue() );
-					SET_STATIC_PIXEL_SHADER_COMBO( WARPLIGHTING, hasLightWarpTexture );
-					SET_STATIC_PIXEL_SHADER_COMBO( FANCY_BLENDING, bHasBlendModulateTexture );
-					SET_STATIC_PIXEL_SHADER_COMBO( MASKEDBLENDING, bMaskedBlending);
-					SET_STATIC_PIXEL_SHADER_COMBO( RELIEF_MAPPING, bReliefMapping );
-					SET_STATIC_PIXEL_SHADER_COMBO( SEAMLESS, bSeamlessMapping );
-					SET_STATIC_PIXEL_SHADER_COMBO( OUTLINE, bHasOutline );
-					SET_STATIC_PIXEL_SHADER_COMBO( SOFTEDGES, bHasSoftEdges );
-					SET_STATIC_PIXEL_SHADER_COMBO( DETAIL_BLEND_MODE, nDetailBlendMode );
-					SET_STATIC_PIXEL_SHADER_COMBO( NORMAL_DECODE_MODE, (int)  NORMAL_DECODE_NONE );
-					SET_STATIC_PIXEL_SHADER_COMBO( NORMALMASK_DECODE_MODE, (int) NORMAL_DECODE_NONE );
-#ifdef _X360
+					SET_STATIC_PIXEL_SHADER_COMBO(DISTANCEALPHAMODE, nDistanceAlphaMode);
+					SET_STATIC_PIXEL_SHADER_COMBO(SELFILLUM, hasSelfIllum);
+					SET_STATIC_PIXEL_SHADER_COMBO(ENVMAPMODE, nEnvMapMode);
+					SET_STATIC_PIXEL_SHADER_COMBO(WARPLIGHTING, hasLightWarpTexture);
+					SET_STATIC_PIXEL_SHADER_COMBO(BUMPMODE, nBumpMode);
+					SET_STATIC_PIXEL_SHADER_COMBO(DETAIL_BLEND_MODE, nDetailTextureMode);
+					SET_STATIC_PIXEL_SHADER_COMBO(SEAMLESS_BUMPMASK, nSeamlessBumpMaskMode);
+					SET_STATIC_PIXEL_SHADER_COMBO(BASETEXTURE2_MODE, nBaseTextureMode);
+					SET_STATIC_PIXEL_SHADER_COMBO(MASKEDBLENDING, bMaskedBlending);
+					SET_STATIC_PIXEL_SHADER_COMBO(FANCY_BLENDING, bHasBlendModulateTexture);
+
+					// Dead Feature:
+					/*
+						SET_STATIC_PIXEL_SHADER_COMBO(RELIEF_MAPPING, bReliefMapping);
+						SET_STATIC_PIXEL_SHADER_COMBO(NORMAL_DECODE_MODE, (int)NORMAL_DECODE_NONE);
+						SET_STATIC_PIXEL_SHADER_COMBO(NORMALMASK_DECODE_MODE, (int)NORMAL_DECODE_NONE);
+					*/
+#ifdef _X360b
 					SET_STATIC_PIXEL_SHADER_COMBO( FLASHLIGHT, hasFlashlight);
 #endif
 					SET_STATIC_PIXEL_SHADER( lightmappedgeneric_ps20b );
