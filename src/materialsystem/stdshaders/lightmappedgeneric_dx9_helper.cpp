@@ -588,8 +588,21 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 					// 0-11 = BlendModes
 					// 12 = No DetailTexture
 					// Done this way so we don't have to remap the DetailBlendModes
-					int nDetailTextureMode = hasDetailTexture ? 0 : 12;
-					nDetailTextureMode += nDetailBlendMode;
+					int nDetailTextureMode = 0;
+					if (hasDetailTexture)
+					{
+						// Should use a Switch if this gets longer
+						if (nDetailBlendMode == 0)
+							nDetailTextureMode = 1;
+						else if (nDetailBlendMode == 1)
+							nDetailTextureMode = 2;
+						else if (nDetailBlendMode == 10)
+							nDetailTextureMode = 3;
+						else if (nDetailBlendMode == 11)
+							nDetailTextureMode = 4;
+						else
+							nDetailTextureMode = 0; // Blendmode not supported (yet)
+					}
 
 					// 0 = Nothing
 					// 1 = Seamless
@@ -614,17 +627,23 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 // 						.. no cubemap
 //					}
 
+					// 0 = Nothing
+					// 1 = MaskedBlending
+					// 2 = BlendModulatTexture
+					// 3 = MaskedBlending + BlendModulatTexture
+					int nBlendingMode = bMaskedBlending;
+					nBlendingMode += bHasBlendModulateTexture * 2;
+
 					DECLARE_STATIC_PIXEL_SHADER( lightmappedgeneric_ps20b );
 					SET_STATIC_PIXEL_SHADER_COMBO(DISTANCEALPHAMODE, nDistanceAlphaMode);
 					SET_STATIC_PIXEL_SHADER_COMBO(SELFILLUM, hasSelfIllum);
 					SET_STATIC_PIXEL_SHADER_COMBO(ENVMAPMODE, nEnvMapMode);
 					SET_STATIC_PIXEL_SHADER_COMBO(WARPLIGHTING, hasLightWarpTexture);
 					SET_STATIC_PIXEL_SHADER_COMBO(BUMPMODE, nBumpMode);
-					SET_STATIC_PIXEL_SHADER_COMBO(DETAIL_BLEND_MODE, nDetailTextureMode);
+					SET_STATIC_PIXEL_SHADER_COMBO(DETAILTEXTUREMODE, nDetailTextureMode);
 					SET_STATIC_PIXEL_SHADER_COMBO(SEAMLESS_BUMPMASK, nSeamlessBumpMaskMode);
 					SET_STATIC_PIXEL_SHADER_COMBO(BASETEXTURE2_MODE, nBaseTextureMode);
-					SET_STATIC_PIXEL_SHADER_COMBO(MASKEDBLENDING, bMaskedBlending);
-					SET_STATIC_PIXEL_SHADER_COMBO(FANCY_BLENDING, bHasBlendModulateTexture);
+					SET_STATIC_PIXEL_SHADER_COMBO(BLENDINGMODE, nBlendingMode);
 
 					// Dead Feature:
 					/*
@@ -978,15 +997,21 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 		float envmapContrast = params[info.m_nEnvmapContrast]->GetFloatValue();
 		if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 		{
+			// 0 = Nothing
+			// 1 = FastPath ( regular )
+			// 2 = FastPath + FastPathEnvMapContrast
+			int nFastPath = bPixelShaderFastPath || pContextData->m_bPixelShaderForceFastPathBecauseOutline;
+			nFastPath += bPixelShaderFastPath && envmapContrast == 1.0f;
+
 			DECLARE_DYNAMIC_PIXEL_SHADER( lightmappedgeneric_ps20b );
-			SET_DYNAMIC_PIXEL_SHADER_COMBO( FASTPATH,  bPixelShaderFastPath || pContextData->m_bPixelShaderForceFastPathBecauseOutline );
- 			SET_DYNAMIC_PIXEL_SHADER_COMBO( FASTPATHENVMAPCONTRAST,  bPixelShaderFastPath && envmapContrast == 1.0f );
+			SET_DYNAMIC_PIXEL_SHADER_COMBO( FASTPATH, nFastPath);
+// 			SET_DYNAMIC_PIXEL_SHADER_COMBO( FASTPATHENVMAPCONTRAST,   );
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo1( true ) );
 			
 			// Don't write fog to alpha if we're using translucency
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( WRITE_DEPTH_TO_DESTALPHA, bWriteDepthToAlpha );
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( WRITEWATERFOGTODESTALPHA, bWriteWaterFogToAlpha );
-			SET_DYNAMIC_PIXEL_SHADER_COMBO( LIGHTING_PREVIEW, nFixedLightingMode );
+//			SET_DYNAMIC_PIXEL_SHADER_COMBO( LIGHTING_PREVIEW, nFixedLightingMode );
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( BICUBIC_LIGHTMAP, r_lightmap_bicubic.GetBool() ? 1 : 0 );
 			
 			SET_DYNAMIC_PIXEL_SHADER_CMD( DynamicCmdsOut, lightmappedgeneric_ps20b );
