@@ -583,7 +583,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 					int nBumpMode = hasBump;
 					nBumpMode += hasSSBump;
 					nBumpMode += hasBump2 * 2;
-					nBumpMode += !hasDiffuseBumpmap * 4;
+					nBumpMode += (hasBump && (params[info.m_nNoDiffuseBumpLighting]->GetIntValue() != 0)) * 4;
 
 					// Remap Blendmodes
 					int nDetailTextureMode = 0;
