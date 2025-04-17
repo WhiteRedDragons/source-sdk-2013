@@ -1,6 +1,6 @@
 // STATIC: "DISTANCEALPHAMODE"			"0..3"	// 3
 // STATIC: "SELFILLUM"					"0..1"	// 1
-// STATIC: "ENVMAPMODE"					"0..4"	// 4 - Use 8 for PCC
+// STATIC: "ENVMAPMODE"					"0..8"	// 4 - Use 8 for PCC
 // STATIC: "WARPLIGHTING"				"0..1"	// 1
 // STATIC: "BUMPMODE"					"0..8"	// 8 - >4 is $NoDiffuseBumpLighting
 // STATIC: "DETAILTEXTUREMODE"			"0..4"	// 4
@@ -55,7 +55,7 @@
 //  SKIP: ($WARPLIGHTING && $BUMPMODE == 7)
 //  SKIP: ($WARPLIGHTING && $BUMPMODE == 8)
 //  SKIP: ($WARPLIGHTING && $DETAILTEXTUREMODE != 0)
-//  SKIP: ($WARPLIGHTING && $SEAMLESS_BUMPMASK == 2)
+//  SKIP: ($WARPLIGHTING && $SEAMLESS_BUMPMASK != 0)
 
 //	BumpMask requires a $BumpMap2
 //	And $NoDiffuseBumpLighting means its impossible to modulate any dp for $DetailBlendMode 10
@@ -174,13 +174,11 @@
 	#elif (DETAILTEXTUREMODE == 4)
 		#define DETAIL_BLEND_MODE 11
 	#else
-		// This was previously the 'disabled' Value
-		// So I'm setting that as the fallback instead of 0 which is mod2x
-		#define DETAIL_BLEND_MODE 12
+		#define DETAIL_BLEND_MODE 0
 	#endif
 #else
 	#define DETAILTEXTURE 0
-	#define DETAIL_BLEND_MODE 12
+	#define DETAIL_BLEND_MODE 0
 #endif
 
 // $BumpMap, $BumpMap2, $SSBump and $NoDiffuseBumpLighting

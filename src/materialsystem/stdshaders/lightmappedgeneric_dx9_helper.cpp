@@ -567,9 +567,9 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 					// 4 = $EnvMapMask
 					// 5-8 = The above + Parallax Corrected Cubemaps
 					int nEnvMapMode = hasEnvmap;
-					nEnvMapMode += hasBaseAlphaEnvmapMask;
-					nEnvMapMode += hasNormalMapAlphaEnvmapMask * 2;
-					nEnvMapMode += hasEnvmapMask * 3;
+					nEnvMapMode += (hasEnvmap && hasBaseAlphaEnvmapMask);
+					nEnvMapMode += (hasEnvmap && hasNormalMapAlphaEnvmapMask) * 2;
+					nEnvMapMode += (hasEnvmap && hasEnvmapMask) * 3;
 					/*
 					nEnvMapMode += PCC * 4;
 					*/
@@ -585,9 +585,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 					nBumpMode += hasBump2 * 2;
 					nBumpMode += !hasDiffuseBumpmap * 4;
 
-					// 0-11 = BlendModes
-					// 12 = No DetailTexture
-					// Done this way so we don't have to remap the DetailBlendModes
+					// Remap Blendmodes
 					int nDetailTextureMode = 0;
 					if (hasDetailTexture)
 					{
@@ -634,7 +632,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 					int nBlendingMode = bMaskedBlending;
 					nBlendingMode += bHasBlendModulateTexture * 2;
 
-					DECLARE_STATIC_PIXEL_SHADER( lightmappedgeneric_ps20b );
+					DECLARE_STATIC_PIXEL_SHADER(lightmappedgeneric_ps20b);
 					SET_STATIC_PIXEL_SHADER_COMBO(DISTANCEALPHAMODE, nDistanceAlphaMode);
 					SET_STATIC_PIXEL_SHADER_COMBO(SELFILLUM, hasSelfIllum);
 					SET_STATIC_PIXEL_SHADER_COMBO(ENVMAPMODE, nEnvMapMode);
@@ -654,7 +652,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 #ifdef _X360b
 					SET_STATIC_PIXEL_SHADER_COMBO( FLASHLIGHT, hasFlashlight);
 #endif
-					SET_STATIC_PIXEL_SHADER( lightmappedgeneric_ps20b );
+					SET_STATIC_PIXEL_SHADER(lightmappedgeneric_ps20b);
 				}
 				else
 				{
@@ -1013,7 +1011,6 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( WRITEWATERFOGTODESTALPHA, bWriteWaterFogToAlpha );
 //			SET_DYNAMIC_PIXEL_SHADER_COMBO( LIGHTING_PREVIEW, nFixedLightingMode );
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( BICUBIC_LIGHTMAP, r_lightmap_bicubic.GetBool() ? 1 : 0 );
-			
 			SET_DYNAMIC_PIXEL_SHADER_CMD( DynamicCmdsOut, lightmappedgeneric_ps20b );
 		}
 		else

@@ -124,7 +124,7 @@ struct PS_INPUT
 
 	// detail textures and bumpmaps are mutually exclusive so that we have enough texcoords.
 //	#if ( RELIEF_MAPPING == 0 )
-		float4 detailOrBumpAndEnvmapMaskTexCoord	: TEXCOORD1;
+	float4 detailOrBumpAndEnvmapMaskTexCoord	: TEXCOORD1;
 //	#endif
 #endif
 
@@ -170,7 +170,7 @@ float4 main(PS_INPUT i) : COLOR
 	GetBaseTextureAndNormal( BaseTextureSampler, BaseTextureSampler2, BumpmapSampler, BASETEXTURE2, (BUMPMAP || NORMALMAPALPHAENVMAPMASK),
 		baseTexCoords, i.vertexColor.rgb, baseColor, baseColor2, vNormal );
 
-#if BUMPMAP == 1	// not ssbump
+#if (BUMPMAP == 1)	// not ssbump
 	vNormal.xyz = vNormal.xyz * 2.0f - 1.0f;					// make signed if we're not ssbump
 #endif
 
@@ -209,7 +209,7 @@ float4 main(PS_INPUT i) : COLOR
 	#if DETAILTEXTURE
 		float2 detailTexCoord = i.detailOrBumpAndEnvmapMaskTexCoord.xy;
 		float2 bumpmapTexCoord = i.baseTexCoord.xy;
-	#elif ( BUMPMASK == 1 )
+	#elif BUMPMASK
 		float2 detailTexCoord = 0.0f;
 		float2 bumpmapTexCoord = i.detailOrBumpAndEnvmapMaskTexCoord.xy;
 		float2 bumpmap2TexCoord = i.detailOrBumpAndEnvmapMaskTexCoord.wz;
@@ -228,9 +228,11 @@ float4 main(PS_INPUT i) : COLOR
 	#if SHADER_MODEL_PS_2_0
 		detailColor = tex2D( DetailSampler, detailTexCoord );
 	#else
-*/
 		detailColor = float4( g_DetailTint, 1.0f ) * tex2D( DetailSampler, detailTexCoord );
-//	#endif
+	#endif
+	*/
+	detailColor = tex2D( DetailSampler, detailTexCoord );
+	detailColor.rgb *= g_DetailTint;
 #endif
 
 #if (DISTANCEALPHAMODE != 0)
