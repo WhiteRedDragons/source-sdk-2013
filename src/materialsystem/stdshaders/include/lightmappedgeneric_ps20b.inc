@@ -18,7 +18,7 @@
 // ($WARPLIGHTING && $BUMPMODE == 7)
 // ($WARPLIGHTING && $BUMPMODE == 8)
 // ($WARPLIGHTING && $DETAILTEXTUREMODE != 0)
-// ($WARPLIGHTING && $SEAMLESS_BUMPMASK == 2)
+// ($WARPLIGHTING && $SEAMLESS_BUMPMASK != 0)
 // ($BUMPMODE == 3 && $SEAMLESS_BUMPMASK == 2)
 // ($BUMPMODE == 4 && $SEAMLESS_BUMPMASK == 2)
 // ($BUMPMODE == 7 && $SEAMLESS_BUMPMASK == 2)
@@ -183,7 +183,7 @@ public:
 		AssertMsg( !( m_nWARPLIGHTING && ( m_nBUMPMODE == 7 ) ), "Invalid combo combination ( WARPLIGHTING && ( BUMPMODE == 7 ) )" );
 		AssertMsg( !( m_nWARPLIGHTING && ( m_nBUMPMODE == 8 ) ), "Invalid combo combination ( WARPLIGHTING && ( BUMPMODE == 8 ) )" );
 		AssertMsg( !( m_nWARPLIGHTING && ( m_nDETAILTEXTUREMODE != 0 ) ), "Invalid combo combination ( WARPLIGHTING && ( DETAILTEXTUREMODE != 0 ) )" );
-		AssertMsg( !( m_nWARPLIGHTING && ( m_nSEAMLESS_BUMPMASK == 2 ) ), "Invalid combo combination ( WARPLIGHTING && ( SEAMLESS_BUMPMASK == 2 ) )" );
+		AssertMsg( !( m_nWARPLIGHTING && ( m_nSEAMLESS_BUMPMASK != 0 ) ), "Invalid combo combination ( WARPLIGHTING && ( SEAMLESS_BUMPMASK != 0 ) )" );
 		AssertMsg( !( ( m_nBUMPMODE == 3 ) && ( m_nSEAMLESS_BUMPMASK == 2 ) ), "Invalid combo combination ( ( BUMPMODE == 3 ) && ( SEAMLESS_BUMPMASK == 2 ) )" );
 		AssertMsg( !( ( m_nBUMPMODE == 4 ) && ( m_nSEAMLESS_BUMPMASK == 2 ) ), "Invalid combo combination ( ( BUMPMODE == 4 ) && ( SEAMLESS_BUMPMASK == 2 ) )" );
 		AssertMsg( !( ( m_nBUMPMODE == 7 ) && ( m_nSEAMLESS_BUMPMASK == 2 ) ), "Invalid combo combination ( ( BUMPMODE == 7 ) && ( SEAMLESS_BUMPMASK == 2 ) )" );

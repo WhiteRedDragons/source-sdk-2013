@@ -24,15 +24,15 @@
 // NOSKIP: defined $HDRTYPE && defined $HDRENABLED && defined $PIXELFOGTYPE && $HDRTYPE != HDR_TYPE_FLOAT && $FOGTYPE != 0
 // --------------------------------------------------------------------------------
 // We don't do HDR and LIGHTING_PREVIEW at the same time since it's running LDR in hammer.
-//  SKIP: defined $LIGHTING_PREVIEW && defined $HDRTYPE && $LIGHTING_PREVIEW && $HDRTYPE != 0
+// deadskip : defined $LIGHTING_PREVIEW && defined $HDRTYPE && $LIGHTING_PREVIEW && $HDRTYPE != 0
 // --------------------------------------------------------------------------------
 // Ditch all fastpath attempts if we are doing LIGHTING_PREVIEW.
-//	SKIP: defined $LIGHTING_PREVIEW && defined $FASTPATHENVMAPTINT && $LIGHTING_PREVIEW && $FASTPATHENVMAPTINT
-//	SKIP: defined $LIGHTING_PREVIEW && defined $FASTPATHENVMAPCONTRAST && $LIGHTING_PREVIEW && $FASTPATHENVMAPCONTRAST
-//	SKIP: defined $LIGHTING_PREVIEW && defined $FASTPATH && $LIGHTING_PREVIEW && $FASTPATH
+// deadskip : defined $LIGHTING_PREVIEW && defined $FASTPATHENVMAPTINT && $LIGHTING_PREVIEW && $FASTPATHENVMAPTINT
+// deadskip : defined $LIGHTING_PREVIEW && defined $FASTPATHENVMAPCONTRAST && $LIGHTING_PREVIEW && $FASTPATHENVMAPCONTRAST
+// deadskip : defined $LIGHTING_PREVIEW && defined $FASTPATH && $LIGHTING_PREVIEW && $FASTPATH
 // --------------------------------------------------------------------------------
 // Ditch flashlight depth when flashlight is disabled
-//  SKIP: ($FLASHLIGHT || $FLASHLIGHTSHADOWS) && $LIGHTING_PREVIEW
+// deadskip : ($FLASHLIGHT || $FLASHLIGHTSHADOWS) && $LIGHTING_PREVIEW
 // --------------------------------------------------------------------------------
 
 // System defined pixel shader constants

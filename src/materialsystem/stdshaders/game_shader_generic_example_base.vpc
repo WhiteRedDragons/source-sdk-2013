@@ -53,6 +53,38 @@ $Project
 
 		$File	"lightmappedgeneric_dx9.cpp"
 		$File	"lightmappedgeneric_dx9_helper.cpp"
+		$File	"vertexlitgeneric_dx9.cpp"
+		$File	"vertexlitgeneric_dx9_helper.cpp"
+		$File	"vertexlitgeneric_dx9_helper.h"
+		$File	"vertexlitgeneric_dx95_helper.h"
+		$File	"skin_dx9_helper.cpp"
+		$File	"skin_dx9_helper.h"
+
+		$File	"weapon_sheen_pass_helper.cpp"
+		$File	"weapon_sheen_pass_helper.h"
+		$File	"cloak.cpp"
+		$File	"cloak_dx9_helper.cpp"
+		$File	"cloak_dx9_helper.h"
+
+		$File	"emissive_scroll_blended_pass_helper.cpp"
+		$File	"emissive_scroll_blended_pass_helper.h"
+
+		// Needed for Flashlight_Version2 ConVar...
+		// That really shouldn't be there but thats not my problem.. I'm just making this actually compile..
+		$File	"eyes_dx8_dx9_helper.cpp"
+
+		// Needed for the external functions that are referenced in VLGc
+		// That also really shouldn't be there, NOT MY PROBLEM THOUGH		
+		$File	"cloak_blended_pass_dx8_helper.cpp"
+
+		// Flesh related functions needed for vlg also..
+		// I'm including the dx8 one because its probably going to end up like cloak where the actual functions are in the dx8 file
+		// Because why have a dedicated file for it.. urgh
+//		$File	"flesh_interior_blended_pass_dx8_helper.cpp"
+		$File	"flesh_interior_blended_pass_helper.cpp"
+		// Correction, if you get both of them, you get multiply defined symbols!
+		// Awesome!!! 
+		// I just want this to compile so I really don't care, this isn't even the right file for that stuff
 
 		$File	"sdk_bloom.cpp"
 		$File	"sdk_screenspace_general.cpp"
