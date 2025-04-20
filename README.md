@@ -1,68 +1,23 @@
-# Source SDK 2013
+# Fork of the Source SDK 2013
+## With faster Shader Compile Times!
 
-Source code for Source SDK 2013.
+You will find modified versions of the Pixels Shaders in this Repo for LightmappedGeneric and VertexLitGeneric.
+I optimised and tested these on my AMD R9 5950x.
+Functionally they should work identically to Stock Shaders, except some features that were previously broken will work now
+( Detailblendmode 5 & 6 on Bumped VLG, for example )
 
-Contains the game code for Half-Life 2, HL2: DM and TF2.
+Heres some charts to visualise the changes.
+I haven't compiled stock LMG ( because it takes ludicriously long ), so to stay fair I set its time in the diagram to 0
+When I get the time I will update this description..
 
-**Now including Team Fortress 2! ✨**
+NOTE:
+The only real things that changed on these Shaders is the Static and Dynamic Combos.
+I compressed them to avoid SKIP statements, and decompress them afterwards.
+The Compiler didn't like the bools it made from statics now that they are defines instead, so I removed them :)
+I slightly organised things, added some minor comments and also copied some missing code ( Blendmode 5&6 on Bumped VLG )
+![firefox_UN7mWUgnHn](https://github.com/user-attachments/assets/826a2719-42c6-4257-85a9-a71d48d87317)
+![firefox_sy1EaXvJxU](https://github.com/user-attachments/assets/754cf3fb-3deb-4e73-8d80-d4d0f7cdd940)
 
-## Build instructions
-
-Clone the repository using the following command:
-
-`git clone https://github.com/ValveSoftware/source-sdk-2013`
-
-### Windows
-
-Requirements:
- - Source SDK 2013 Multiplayer installed via Steam
- - Visual Studio 2022 with the following workload and components:
-   - Desktop development with C++:
-     - MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)
-     - Windows 11 SDK (10.0.22621.0) or Windows 10 SDK (10.0.19041.1)
- - Python 3.13 or later
-
-Inside the cloned directory, navigate to `src`, run:
-```bat
-createallprojects.bat
-```
-This will generate the Visual Studio project `everything.sln` which will be used to build your mod.
-
-Then, on the menu bar, go to `Build > Build Solution`, and wait for everything to build.
-
-You can then select the `Client (Mod Name)` project you wish to run, right click and select `Set as Startup Project` and hit the big green `> Local Windows Debugger` button on the tool bar in order to launch your mod.
-
-The default launch options should be already filled in for the `Release` configuration.
-
-### Linux
-
-Requirements:
- - Source SDK 2013 Multiplayer installed via Steam
- - podman
-
-Inside the cloned directory, navigate to `src`, run:
-```bash
-./buildallprojects
-```
-
-This will build all the projects related to the SDK and your mods automatically against the Steam Runtime.
-
-You can then, in the root of the cloned directory, you can navigate to `game` and run your mod by launching the build launcher for your mod project, eg:
-```bash
-./mod_tf
-```
-
-*Mods that are distributed on Steam MUST be built against the Steam Runtime, which the above steps will automatically do for you.*
-
-## Distributing your Mod
-
-There is guidance on distributing your mod both on and off Steam available at the following link:
-
-https://partner.steamgames.com/doc/sdk/uploading/distributing_source_engine
-
-## Additional Resources
-
-- [Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Source_SDK_2013)
 
 ## License
 
